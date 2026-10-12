@@ -3,6 +3,7 @@ package icu.samnyan.aqua.sega.chusan
 import ext.*
 import icu.samnyan.aqua.net.db.AquaUserServices
 import icu.samnyan.aqua.net.games.chu3.Chusan
+import icu.samnyan.aqua.net.games.chu3.ChusanUnlocks
 import icu.samnyan.aqua.net.utils.simpleDescribe
 import icu.samnyan.aqua.sega.allnet.TokenChecker
 import icu.samnyan.aqua.sega.chusan.handler.chusanInit
@@ -38,7 +39,8 @@ class ChusanController(
     val versionHelper: ChusanVersionHelper,
     val props: ChusanProps,
     val pop: GameMusicPopularity,
-    val chusan: Chusan
+    val chusan: Chusan,
+    val unlocks: ChusanUnlocks
 ): MeowApi({ api, resp ->
     if (resp is String) resp
     else (if ("CM" in api  || api == "GetUserItemApi" ) cmMapper else mapper).write(resp)

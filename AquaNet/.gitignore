@@ -38,3 +38,4 @@ public/chu3
 *.local
 
 .env
+src/libs/icons.generated.json

@@ -276,6 +276,8 @@ export const GAME = {
     post(`/api/v2/game/${game}/import`, {}, { json: data }),
   importMusicDetail: (game: GameName, data: any): Promise<Record<string, any>> =>
     post(`/api/v2/game/${game}/import-music-detail`, {}, { json: data }),
+  setFavorite: (game: GameName, musicId: number, isAdd: boolean): Promise<number[]> =>
+    post(`/api/v2/game/${game}/set-favorite`, { musicId, isAdd }),
   setRival: (game: GameName, rivalUserName: string, isAdd: boolean) =>
     post(`/api/v2/game/${game}/set-rival`, { rivalUserName, isAdd }),
 }

@@ -232,11 +232,13 @@ fun ChusanController.chusanInit() {
         val kind = parsing { (rawIndex / 10000000000L).int }
         data["nextIndex"] = rawIndex % 10000000000L
         mapOf("itemKind" to kind) grabs {
-            // TODO: All unlock
             val items = db.userItem.findAllByUser_Card_ExtIdAndItemKind(uid, kind).mut
+            val user = db.userData.findByCard_ExtId(uid)
 
             // Check game options
-            db.userData.findByCard_ExtId(uid)?.card?.aquaUser?.gameOptions?.let {
+            user?.card?.aquaUser?.gameOptions?.let {
+                unlocks.addUnlocked(items, kind, it, user.lastRomVersion)
+
                 if (it.chusanInfinitePenguins && kind == 5) {
                     items.removeAll { it.itemId in penguins }
                     items.addAll(penguins.map { Chu3UserItem(kind, it, 999, true) })

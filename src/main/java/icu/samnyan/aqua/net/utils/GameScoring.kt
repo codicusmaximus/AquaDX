@@ -19,8 +19,11 @@ val mai2Scores = listOf(
 ).map { (k, v) -> (k * 10000).toInt() to v }
 
 val chu3Scores = listOf(
+    100.9  to "SSS+",
     100.75 to "SSS",
+    100.5  to "SS+",
     100.0  to "SS",
+    99.0   to "S+",
     97.5   to "S",
     95.0   to "AAA",
     92.5   to "AA",
