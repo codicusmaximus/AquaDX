@@ -65,6 +65,9 @@ If you encounter any issue, please report via Discord, QQ, (both available on th
 
 ### Self Hosting (Advanced)
 
+> [!TIP]
+> Running it at home for your own cabinets? See the [home setup guide](docs/home-setup.md): one `docker compose up` gives you the game server and a web UI with card login, no email or accounts needed.
+
 Please read the [self-hosting guide](docs/self-hosting.md) if you want to host your own server. 
 This is only for advanced users and developers. 
 Do not ask for support if you are not familiar with programming or networking.

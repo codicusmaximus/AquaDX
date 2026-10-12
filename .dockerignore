@@ -6,3 +6,8 @@
 !settings.gradle.kts
 !src/
 !src/**
+!AquaNet/
+!AquaNet/**
+AquaNet/node_modules
+AquaNet/dist
+AquaNet/.env

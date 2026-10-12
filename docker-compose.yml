@@ -1,7 +1,9 @@
 services:
   app:
     build: .
-    image: hykilpikonna/aquadx:latest
+    # Built locally from this folder (run `docker compose up -d --build` after updating)
+    image: aquadx-local:latest
+    pull_policy: build
     ports:
       - "80:80"
       - "8443:8443"
@@ -12,6 +14,9 @@ services:
       - SPRING_DATASOURCE_USERNAME=cat
       - SPRING_DATASOURCE_PASSWORD=meow
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
+      # LAN mode: host the web UI on port 80 and log in by card, no email or accounts needed.
+      # Set to false for a public server.
+      - AQUANET_LAN_ENABLED=true
     depends_on:
       - db
     volumes:

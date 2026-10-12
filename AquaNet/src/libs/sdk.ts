@@ -218,6 +218,25 @@ export const USER = {
     post('/api/v2/user/delete-account'),
 }
 
+export interface LanPlayer {
+  cardId: number
+  username: string
+  name: string
+  games: string[]
+  lastPlayed: string
+}
+
+export const LAN = {
+  players: (): Promise<LanPlayer[]> =>
+    post('/api/v2/lan/players', {}),
+  login: async (by: { cardId: number } | { accessCode: string }) => {
+    const data = await post('/api/v2/lan/login', by)
+    localStorage.setItem('token', data.token)
+    return data as { token: string, username: string }
+  },
+  logout: () => localStorage.removeItem('token'),
+}
+
 export const USERBOX = {
   getProfile: (): Promise<{ user: UserBox, items: UserItem[] }> =>
     post('/api/v2/game/chu3/user-box', {}),
@@ -300,4 +319,4 @@ export const FEDY = {
 }
 
 // @ts-ignore
-window.sdk = { USER, USERBOX, CARD, GAME, DATA, SETTING, TRANSFER, FEDY }
+window.sdk = { USER, LAN, USERBOX, CARD, GAME, DATA, SETTING, TRANSFER, FEDY }

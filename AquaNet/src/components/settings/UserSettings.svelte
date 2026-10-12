@@ -7,6 +7,7 @@
   import { download, pfp } from "../../libs/ui";
   import { t, ts } from "../../libs/i18n";
   import Cropper from "svelte-easy-crop";
+  import { LAN_MODE } from "../../libs/config";
 
   let me: AquaNetUser;
   let error: string;
@@ -14,12 +15,13 @@
   let loading = false;
   let confirm: ConfirmProps | null = null;
 
-  const profileFields = [
+  // LAN mode logs in by card, so there is no password to change
+  const profileFields = ([
     [ 'displayName', t('settings.profile.name') ],
     [ 'username', t('settings.profile.username') ],
     [ 'password', t('settings.profile.password') ],
     [ 'profileBio', t('settings.profile.bio') ],
-  ] as const
+  ] as const).filter(([field]) => !(LAN_MODE && field === 'password'))
 
   // Fetch user data
   const getMe = () => {

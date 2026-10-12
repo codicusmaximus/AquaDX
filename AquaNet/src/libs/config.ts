@@ -26,6 +26,9 @@ export const HAS_USERBOX_ASSETS = true
 
 export const DEFAULT_GAME = import.meta.env.VITE_DEFAULT_GAME || "mai2"
 
+// LAN mode: the server hosts this UI on a home network, and players log in by picking their card
+export const LAN_MODE = import.meta.env.VITE_LAN_MODE === "true"
+
 // Meow meow meow
 
 // Matching servers

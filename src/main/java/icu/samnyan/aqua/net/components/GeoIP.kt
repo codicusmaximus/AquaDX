@@ -27,10 +27,19 @@ class GeoIP(
     val props: GeoIPProperties
 ) {
     val log = LoggerFactory.getLogger(GeoIP::class.java)!!
-    lateinit var geoLite: DatabaseReader
+    var geoLite: DatabaseReader? = null
 
     @PostConstruct
     fun onLoad() {
+        // Country lookup is optional: a server without internet (or behind a firewall) should still start
+        try { load() }
+        catch (e: Exception) {
+            log.warn("GeoIP is unavailable, countries will not be detected: ${e.message}")
+            geoLite = null
+        }
+    }
+
+    fun load() {
         // Check path exists
         if (!File(props.geoLitePath).exists()) {
             log.error("GeoIP Service is enabled but GeoLite2 database is not found, trying to download from GitHub.")
@@ -77,7 +86,7 @@ class GeoIP(
     {
         return try {
             val ipa = InetAddress.getByName(ip)
-            geoLite.country(ipa)?.country()?.isoCode() ?: ""
+            (geoLite ?: return "").country(ipa)?.country()?.isoCode() ?: ""
         }
         catch (e: AddressNotFoundException) { "" }
         catch (e: Exception) {
