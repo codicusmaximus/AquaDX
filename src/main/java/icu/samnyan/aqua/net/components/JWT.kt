@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Service
+import java.io.File
+import java.security.SecureRandom
 import java.time.Instant
 import java.util.*
 import javax.crypto.SecretKey
@@ -34,9 +36,15 @@ class JWT(
 
     @PostConstruct
     fun onLoad() {
-        // Check secret
-        if (props.secret == "Open Sesame!") {
-            log.warn("USING DEFAULT JWT SECRET, PLEASE SET aqua-net.jwt IN CONFIGURATION")
+        // Never sign logins with the well-known default secret: generate one and keep it in data/
+        if (props.secret.trim('"') == "Open Sesame!") {
+            val file = File("data/jwt-secret")
+            if (!file.exists()) {
+                file.parentFile?.mkdirs()
+                file.writeText(Base64.getEncoder().encodeToString(ByteArray(48).also { SecureRandom().nextBytes(it) }))
+                log.info("No aqua-net.jwt.secret configured, generated a random one in ${file.path}")
+            }
+            props.secret = file.readText().trim()
         }
 
         // Pad byte array to 256 bits

@@ -118,7 +118,8 @@ class CardController(
         if (card.aquaUser != u) 400 - "Card not linked to user"
 
         // Ghost cards cannot be unlinked
-        if (card.isGhost) 400 - "Account virtual cards cannot be unlinked"
+        // (in LAN mode a physical card can be the account card)
+        if (card.isGhost || card.id == u.ghostCard.id) 400 - "Account virtual cards cannot be unlinked"
 
         val luid = card.luid
 

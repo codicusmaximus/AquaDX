@@ -1,4 +1,16 @@
 # Use a multi-stage build to keep the image size small
+
+# Build the web UI (AquaNet). In LAN mode the server hosts it on port 80.
+FROM node:22-alpine AS web
+WORKDIR /web
+RUN npm install -g pnpm@9.7.0
+COPY AquaNet/package.json AquaNet/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY AquaNet/ ./
+# Which settings file to build the UI with (.env.lan builds it for this server on a home network)
+ARG AQUANET_ENV=.env.lan
+RUN cp "$AQUANET_ENV" .env && pnpm build
+
 # Pin the builder so ARM64 deployments cannot reuse an older floating jdk25 image.
 FROM gradle:9.6.1-jdk25 AS builder
 
@@ -23,6 +35,9 @@ COPY --chown=gradle:gradle src /home/gradle/src
 
 # Download game metadata (music/items lists)
 RUN bash /home/gradle/src/main/resources/meta/update.sh
+
+# Bundle the web UI into the server
+COPY --from=web --chown=gradle:gradle /web/dist /home/gradle/src/main/resources/static/
 
 # Build the application
 RUN ./gradlew build -x test

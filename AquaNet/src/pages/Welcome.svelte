@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Turnstile } from "svelte-turnstile";
   import { slide } from 'svelte/transition';
-  import { TURNSTILE_SITE_KEY } from "../libs/config";
+  import { LAN_MODE, TURNSTILE_SITE_KEY } from "../libs/config";
+  import LanPicker from "../components/LanPicker.svelte";
   import Icon from "@iconify/svelte";
   import { USER } from "../libs/sdk";
   import { t } from "../libs/i18n"
@@ -30,7 +31,8 @@
   let verifyMsg = ""
   let token = ""
 
-  if (USER.isLoggedIn()) {
+  // In LAN mode this page is the player picker, so it stays reachable to switch players
+  if (USER.isLoggedIn() && !LAN_MODE) {
     window.location.href = "/home"
   }
   if (params.get('code')) {
@@ -193,7 +195,9 @@
     {/if}
     </div>
 
-    {#if state === "home"}
+    {#if LAN_MODE}
+      <LanPicker/>
+    {:else if state === "home"}
       <div class="btn-group" transition:slide>
         <button on:click={() => state = 'login'}>{t('welcome.btn-login')}</button>
         <button on:click={() => state = 'signup'}>{t('welcome.btn-signup')}</button>

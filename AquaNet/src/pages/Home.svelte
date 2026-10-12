@@ -7,6 +7,7 @@
   import ImportDataAction from "./Home/ImportDataAction.svelte";
   import DashboardTabs from "../components/DashboardTabs.svelte";
   import * as acUrl from "../libs/acUrl";
+  import { LAN_MODE } from "../libs/config";
 
   USER.ensureLoggedIn();
 
@@ -50,15 +51,17 @@
 
       <ImportDataAction/>
 
-      <ActionCard icon="uil:link-alt" href="/setup">
-        <h3>{t('home.setup')}</h3>
-        <span>{t('home.setup-description')}</span>
-      </ActionCard>
+      {#if !LAN_MODE}
+        <ActionCard icon="uil:link-alt" href="/setup">
+          <h3>{t('home.setup')}</h3>
+          <span>{t('home.setup-description')}</span>
+        </ActionCard>
 
-      <ActionCard color="82, 93, 233" icon="fluent:chat-12-filled" href="/support">
-        <h3>{t('home.join-community')}</h3>
-        <span>{t('home.join-community-description')}</span>
-      </ActionCard>
+        <ActionCard color="82, 93, 233" icon="fluent:chat-12-filled" href="/support">
+          <h3>{t('home.join-community')}</h3>
+          <span>{t('home.join-community-description')}</span>
+        </ActionCard>
+      {/if}
     </div>
   {/if}
 </main>

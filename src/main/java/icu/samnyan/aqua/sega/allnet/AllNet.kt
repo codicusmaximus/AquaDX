@@ -1,6 +1,7 @@
 package icu.samnyan.aqua.sega.allnet
 
 import ext.*
+import icu.samnyan.aqua.net.LanProps
 import icu.samnyan.aqua.sega.allnet.AllNetBillingDecoder.decodeAllNet
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -61,11 +62,14 @@ class AllNetProps {
 class AllNet(
     val userKeychipRepo: UserKeychipRepo,
     val keychipSessionService: KeychipSessionService,
-    val props: AllNetProps
+    val props: AllNetProps,
+    val lan: LanProps
 ) {
     @API("/")
-    fun root(response: HttpServletResponse) {
-        response.sendRedirect(props.redirect)
+    fun root(request: HttpServletRequest, response: HttpServletResponse) {
+        // In LAN mode this server hosts the web UI itself
+        if (lan.enabled) request.getRequestDispatcher("/index.html").forward(request, response)
+        else response.sendRedirect(props.redirect)
     }
 
     @API("/sys/test")
@@ -112,7 +116,8 @@ class AllNet(
             return "".also { logger.warn("> Rejected: Version $ver is not allowed (typically bad ICF)") }
 
         // Proper keychip authentication
-        if (props.checkKeychip) {
+        // LAN mode trusts every cabinet on the network
+        if (props.checkKeychip && !lan.enabled) {
             // If it's a user keychip, it should be in user database
             val u = findUserByIncomingSerial(serial)
             if (u != null) {

@@ -10,7 +10,7 @@
   import MaiPhoto from "./pages/MaiPhoto.svelte";
   import { pfp, tooltip } from "./libs/ui"
   import { ANNOUNCEMENT } from "./libs/announcement";
-  import { DEFAULT_GAME } from "./libs/config"
+  import { DEFAULT_GAME, LAN_MODE } from "./libs/config"
   import { t } from "./libs/i18n";
   import Transfer from "./pages/Transfer/Transfer.svelte";
   import { link } from "d3";
@@ -73,6 +73,9 @@
   <a href={`/ranking/${recentGame}`}>{t('navigation.rankings').toLowerCase()}</a>
   {#if playedMai}
     <a href="/pictures">photo</a>
+  {/if}
+  {#if LAN_MODE}
+    <a href="/">switch player</a>
   {/if}
   {#if me}
     <a href="/u/{me.username}" use:tooltip={t('navigation.profile')}>
