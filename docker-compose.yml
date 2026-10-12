@@ -5,11 +5,9 @@ services:
     image: localhost/aquadx-local:latest
     pull_policy: build
     ports:
-      # Web UI and game traffic
-      - "8011:8011"
-      # Cabinets always send their first boot request (ALL.Net PowerOn) to port 80.
-      # Uncomment this where port 80 is free, or redirect port 80 to 8011 in your firewall (see docs/home-setup.md).
-      # - "80:8011"
+      # Web UI and game traffic. Cabinets send their first boot request (ALL.Net PowerOn) to port 80,
+      # so keep 80 unless something else forwards port 80 here. Change it with AQUADX_PORT in a .env file.
+      - "${AQUADX_PORT:-80}:${AQUADX_PORT:-80}"
       - "8443:8443"
       - "22345:22345"
     restart: on-failure:3
@@ -18,12 +16,12 @@ services:
       - SPRING_DATASOURCE_USERNAME=cat
       - SPRING_DATASOURCE_PASSWORD=meow
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
-      # LAN mode: host the web UI on port 8011 and log in by card, no email or accounts needed.
+      # LAN mode: host the web UI and log in by card, no email or accounts needed.
       # Set to false for a public server.
       - AQUANET_LAN_ENABLED=true
-      # Serve on port 8011, and include that port in the game URLs handed to cabinets at boot
-      - SERVER_PORT=8011
-      - ALLNET_SERVER_PORT=8011
+      # Serve on AQUADX_PORT, and include it in the game URLs handed to cabinets at boot (port 80 is left out)
+      - SERVER_PORT=${AQUADX_PORT:-80}
+      - ALLNET_SERVER_PORT=${AQUADX_PORT:-80}
       - ALLNET_SERVER_HIDE_PORT=false
     depends_on:
       - db
