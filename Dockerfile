@@ -1,7 +1,7 @@
 # Use a multi-stage build to keep the image size small
 
-# Build the web UI (AquaNet). In LAN mode the server hosts it on port 80.
-FROM node:22-alpine AS web
+# Build the web UI (AquaNet). In LAN mode the server hosts it itself.
+FROM docker.io/library/node:22-alpine AS web
 WORKDIR /web
 RUN npm install -g pnpm@9.7.0
 COPY AquaNet/package.json AquaNet/pnpm-lock.yaml ./
@@ -12,7 +12,7 @@ ARG AQUANET_ENV=.env.lan
 RUN cp "$AQUANET_ENV" .env && pnpm build
 
 # Pin the builder so ARM64 deployments cannot reuse an older floating jdk25 image.
-FROM gradle:9.6.1-jdk25 AS builder
+FROM docker.io/library/gradle:9.6.1-jdk25 AS builder
 
 # Copy the Gradle wrapper and configuration files separately to leverage Docker cache
 COPY --chown=gradle:gradle gradlew /home/gradle/
@@ -43,7 +43,7 @@ COPY --from=web --chown=gradle:gradle /web/dist /home/gradle/src/main/resources/
 RUN ./gradlew build -x test
 
 # Start with a fresh image for the runtime
-FROM eclipse-temurin:25-jre-alpine
+FROM docker.io/library/eclipse-temurin:25-jre-alpine
 
 # Set the deployment directory
 WORKDIR /app
