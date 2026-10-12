@@ -233,7 +233,8 @@ class LanData(val props: LanProps) {
     fun bundled(rel: Str): ByteArray? {
         val m = Regex("^(\\w+)/00/all-(music|items)\\.json$").find(rel) ?: return null
         val (game, kind) = m.destructured
-        return javaClass.getResourceAsStream("/meta/$game/$kind.json")?.use { it.readBytes() }
+        return (javaClass.getResourceAsStream("/meta/$game/$kind.json")
+            ?: javaClass.getResourceAsStream("/meta/$game/all-$kind.json"))?.use { it.readBytes() }
     }
 
     fun mirror(rel: Str): ByteArray? {

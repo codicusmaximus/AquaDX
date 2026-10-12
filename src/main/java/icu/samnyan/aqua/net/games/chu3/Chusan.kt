@@ -9,6 +9,7 @@ import icu.samnyan.aqua.sega.chusan.model.Chu3UserDataRepo
 import icu.samnyan.aqua.sega.chusan.model.Chu3UserMusicDetailRepo
 import icu.samnyan.aqua.sega.chusan.model.Chu3UserPlaylogRepo
 import icu.samnyan.aqua.sega.chusan.model.userdata.Chu3UserData
+import icu.samnyan.aqua.sega.chusan.model.userdata.Chu3UserMisc
 import icu.samnyan.aqua.sega.chusan.model.userdata.UserGameOption
 import org.springframework.web.bind.annotation.RestController
 import kotlin.jvm.optionals.getOrNull
@@ -23,7 +24,8 @@ class Chusan(
     override val playlogRepo: Chu3UserPlaylogRepo,
     override val userDataRepo: Chu3UserDataRepo,
     override val userMusicRepo: Chu3UserMusicDetailRepo,
-    val rp: Chu3Repos
+    val rp: Chu3Repos,
+    val unlocks: ChusanUnlocks,
 ): GameApiController<Chu3UserData>("chu3", Chu3UserData::class) {
     override suspend fun trend(@RP username: Str): List<TrendOut> = us.cardByName(username) { card ->
         findTrend(playlogRepo.findByUserCardExtId(card.extId)
@@ -121,10 +123,23 @@ class Chusan(
             400 - "Invalid parameters"
     }
 
+    @API("set-favorite")
+    @Doc("Add or remove a favorite song. The game picks up the change on the player's next login.", "The new list of favorite song ids")
+    suspend fun setFavorite(@RP token: String, @RP musicId: Int, @RP isAdd: Boolean) = us.jwt.auth(token) { u ->
+        val user = userDataRepo.findByCard(u.ghostCard) ?: (404 - "Game data not found")
+        val misc = rp.userMisc.findSingleByUser(user) ?: Chu3UserMisc().apply { this.user = user }
+        misc.favMusic = (if (isAdd) misc.favMusic + musicId else misc.favMusic - musicId).distinct().mut
+        rp.userMisc.save(misc)
+        misc.favMusic
+    }
+
     // UserBox related APIs
     @API("user-box")
     fun userBox(@RP token: String) = us.jwt.auth(token) {
         val u = userDataRepo.findByCard(it.ghostCard) ?: (404 - "Game data not found")
-        mapOf("user" to u, "items" to rp.userItem.findAllByUser(u))
+        // Include "unlock all" items so they can be picked in the userbox editor too
+        val items = rp.userItem.findAllByUser(u).mut
+        ChusanUnlocks.COLLECTIBLE_KINDS.keys.forEach { kind -> unlocks.addUnlocked(items, kind, it.gameOptions, u.lastRomVersion) }
+        mapOf("user" to u, "items" to items)
     }
 }

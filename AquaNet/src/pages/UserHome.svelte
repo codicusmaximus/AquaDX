@@ -116,6 +116,19 @@
     }).catch((e) => { error = e.message; console.error(e) } );
   }
 
+  // Players can star songs on their own Chunithm profile; the game picks them up on next login
+  $: canFavorite = game === 'chu3' && !!me && d?.user?.aquaUser?.username === me.username
+  let favoriteBusy: number | null = null
+  function toggleFavorite(musicId: number) {
+    if (!d || favoriteBusy !== null) return
+    const isAdd = !(d.user.favorites ?? []).includes(musicId)
+    favoriteBusy = musicId
+    GAME.setFavorite(game, musicId, isAdd)
+      .then(favs => { if (d) d.user.favorites = favs })
+      .catch(e => error = e.message)
+      .finally(() => favoriteBusy = null)
+  }
+
   if (Object.keys(GAME_TITLE).includes(game) || !game) init()
   else error = t("UserHome.InvalidGame", {game})
 
@@ -365,7 +378,15 @@
           <div class:alt={i % 2 === 0}>
             <img src={`${DATA_HOST}/d/${game}/music/00${r.musicId.toString().padStart(6, '0').substring(2)}.png`} alt="" on:error={coverNotFound} />
             <div class="info">
-              <div>{r.name ?? t("UserHome.UnknownSong")}</div>
+              <div>
+                {r.name ?? t("UserHome.UnknownSong")}
+                {#if canFavorite}
+                  <button class="fav-toggle" on:click={() => toggleFavorite(r.musicId)} disabled={favoriteBusy !== null}
+                          use:tooltip={(d.user.favorites ?? []).includes(r.musicId) ? "Remove from favorites" : "Add to favorites"}>
+                    <Icon icon={(d.user.favorites ?? []).includes(r.musicId) ? "material-symbols:star" : "material-symbols:star-outline"} />
+                  </button>
+                {/if}
+              </div>
               <div>
                 {#if r.isAllPerfect || r.isAllJustice}
                   <img src="/assets/imgs/All Perfect.png" alt="All Perfect" />
@@ -410,6 +431,12 @@
               <img src={`${DATA_HOST}/d/${game}/music/00${favoriteSongId.toString().padStart(6, '0').substring(2)}.png`} alt="" on:error={coverNotFound} />
               <div class="info">
                 <div class="song-title">{allMusics[favoriteSongId.toString()] ? allMusics[favoriteSongId.toString()].name : t("UserHome.UnknownSong")}</div>
+                {#if canFavorite}
+                  <button class="fav-toggle" on:click={() => toggleFavorite(favoriteSongId)} disabled={favoriteBusy !== null}
+                          use:tooltip={"Remove from favorites"}>
+                    <Icon icon="material-symbols:star" />
+                  </button>
+                {/if}
               </div>
             </div>
           {/each}
@@ -423,6 +450,15 @@
 
 <style lang="sass">
 @use "../vars"
+
+.fav-toggle
+  display: inline-flex
+  vertical-align: middle
+  padding: 0.1em
+  margin-left: 0.3em
+  background: none
+  font-size: 1.1em
+  color: #ffd166
 
 #user-home
   .user-pfp

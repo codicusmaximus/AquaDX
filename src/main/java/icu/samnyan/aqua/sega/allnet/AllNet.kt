@@ -116,8 +116,7 @@ class AllNet(
             return "".also { logger.warn("> Rejected: Version $ver is not allowed (typically bad ICF)") }
 
         // Proper keychip authentication
-        // LAN mode trusts every cabinet on the network
-        if (props.checkKeychip && !lan.enabled) {
+        if (props.checkKeychip) {
             // If it's a user keychip, it should be in user database
             val u = findUserByIncomingSerial(serial)
             if (u != null) {
@@ -130,7 +129,9 @@ class AllNet(
                 session = keychipSessionService.new(u, reqMap["game_id"] ?: "").token
             }
 
-            else if (props.keychipPermissiveForTesting) {
+            // LAN mode trusts every cabinet on the network, but still hands out a session
+            // because the game URLs carry it when keychip checking is on
+            else if (props.keychipPermissiveForTesting || lan.enabled) {
                 logger.warn("> Accepted invalid keychip $serial in permissive mode")
                 session = keychipSessionService.new(null, reqMap["game_id"] ?: "").token
             }
