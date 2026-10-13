@@ -191,7 +191,10 @@ class AllNet(
     }
 
     private fun switchUri(hereAddr: Str, localPort: Str, gameId: Str, ver: Str, session: Str?): Str {
-        val addr = hereAddr + (if (props.hidePort) "" else ":${props.port ?: localPort}")
+        // The default port is left out even when hide-port is off, so the URL looks the same as with hide-port on
+        val port = props.port?.toString() ?: localPort
+        val defaultPort = if (props.tls) "443" else "80"
+        val addr = hereAddr + (if (props.hidePort || port == defaultPort) "" else ":$port")
 
         // If keychip authentication is enabled, the game URLs will be set to /gs/{token}/{game}/...
         val base = if (session != null) "gs/$session" else "g"

@@ -87,3 +87,6 @@ docs/logs
 
 # Sensitive keys
 game_encryption.json
+
+# Local settings for docker compose (AQUADX_PORT etc.)
+/.env
