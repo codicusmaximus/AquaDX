@@ -10,7 +10,8 @@ services:
       - "${AQUADX_PORT:-80}:${AQUADX_PORT:-80}"
       - "8443:8443"
       - "22345:22345"
-    restart: on-failure:3
+    # Start again after a crash or a reboot (with rootless Podman, see docs/podman-fedora.md for reboots)
+    restart: always
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/main
       - SPRING_DATASOURCE_USERNAME=cat
@@ -31,6 +32,7 @@ services:
       - ./data:/app/data:z
   db:
     image: docker.io/library/mariadb:latest
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: meow
       MYSQL_DATABASE: main

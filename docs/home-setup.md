@@ -15,7 +15,7 @@ Anyone on your network can log in as anyone. Don't expose the server's ports to 
 
 ## First time
 
-1. Install Docker (Docker Desktop on Windows/macOS), or Podman with podman-compose on Linux.
+1. Install Docker (Docker Desktop on Windows/macOS). On Fedora or with rootless Podman, follow [podman-fedora.md](podman-fedora.md) instead.
 2. Get this repository and start it:
 
    ```sh
@@ -25,7 +25,6 @@ Anyone on your network can log in as anyone. Don't expose the server's ports to 
    ```
 
    The first build downloads dependencies and takes a while. Later builds are faster.
-   With Podman, use `podman-compose up -d --build` instead.
 3. In `config/application.properties`, set `allnet.server.host=` to this computer's LAN IP (for example `192.168.1.20`).
    This is the address cabinets are told to use for game traffic.
 4. Point your cabinet's segatools `[dns] default=` at this computer's LAN IP, the same way as before.
@@ -37,18 +36,7 @@ The server runs on port **80** by default: the web UI and all game traffic go th
 Cabinets always send their first request at boot (ALL.Net) to port 80, because segatools redirects the address, not the port.
 Port 22345 (card reader, Aime DB) and 8443 (billing) are also used by cabinets.
 
-### Podman on Fedora
-
-Rootless Podman can't use ports below 1024 unless you allow it. Allow port 80 and up, and open the ports in the firewall:
-
-```sh
-echo "net.ipv4.ip_unprivileged_port_start=80" | sudo tee /etc/sysctl.d/90-aquadx.conf
-sudo sysctl --system
-sudo firewall-cmd --permanent --add-port=80/tcp --add-port=22345/tcp --add-port=8443/tcp
-sudo firewall-cmd --reload
-```
-
-The sysctl setting lets any program on this computer use ports 80 to 1023 without root.
+Rootless Podman needs permission to use port 80; see [podman-fedora.md](podman-fedora.md#2-let-podman-use-port-80-and-open-the-firewall).
 
 ### Using another port
 
